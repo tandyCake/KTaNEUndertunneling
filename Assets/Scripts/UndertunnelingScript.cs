@@ -31,7 +31,12 @@ public class UndertunnelingScript : MonoBehaviour {
 
     void Start ()
     {
-
+        GetComponent<KMSelectable>().Children[14].OnInteract += () => { 
+            foreach (Section sec in GetComponentsInChildren<Section>())
+            {
+                StartCoroutine(sec.ResetAnim(UnityEngine.Random.Range(12, 20)));
+            }
+                return false; };
     }
 
     void Update ()

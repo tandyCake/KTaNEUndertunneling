@@ -7,27 +7,40 @@ public abstract class Section : MonoBehaviour {
 
     public KMAudio Audio;
     public KMBombInfo Bomb;
+    public Maze maze = new Maze();
+    [HideInInspector]
     public RotDirection wheelDirection;
-    public Maze maze;
+    [HideInInspector]
     public bool isAnimating;
+    public int moduleId { private get; set; }
 
 	public abstract SectionType type { get; }
-    public abstract IEnumerator ResetAnim();
-
-    public Action InteractionHook;
-
-   
-
-
+    public abstract IEnumerator ResetAnim(int cycles);
+    public abstract bool isValid();
+     
     protected virtual void SwitchInteract(RotDirection newDirection)
     { throw new NotImplementedException(); }
-    protected virtual void DialInteract(RotDirection rotation, DialDirection newPosition)
+    protected virtual void DialInteraction(RotDirection rotation, Direction newPosition)
     { throw new NotImplementedException(); }
-    protected virtual void NumberInteract(int newNumber)
+    protected virtual void NumberInteraction(int newNumber)
     { throw new NotImplementedException(); }
-    protected virtual void GridInteract(int pressedPosition)
+    protected virtual void GridInteraction(int pressedPosition)
     { throw new NotImplementedException(); }
 
+    public void Connect(Section other)
+    {
+        switch (other.type)
+        {
+            case SectionType.Switch:
+                (other as Switch).interactionHook += SwitchInteract; break;
+            case SectionType.Dial:
+                (other as Dial).interactionHook += DialInteraction; break;
+            case SectionType.Number:
+                (other as Number).interactionHook += NumberInteraction; break;
+            case SectionType.Grid:
+                (other as Grid).interactionHook += GridInteraction;  break;
+        }
+    }
 
     void Start()
     {
@@ -35,4 +48,9 @@ public abstract class Section : MonoBehaviour {
     }
     protected virtual void OnStart()
     { }
+
+    protected void Log(string msg, params object[] args)
+    {
+        Debug.LogFormat("[Undertunneling #{0}] {1}", moduleId, string.Format(msg, args));
+    }
 }

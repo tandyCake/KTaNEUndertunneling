@@ -3,7 +3,7 @@
     Clockwise,
     Counterclockwise
 }
-public enum DialDirection
+public enum Direction
 {
     Up,
     Right,
