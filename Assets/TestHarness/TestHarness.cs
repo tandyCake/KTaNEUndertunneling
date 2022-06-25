@@ -1322,10 +1322,10 @@ public class TestHarness : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.Return)) Interact();
             if (Input.GetKeyUp(KeyCode.X) || Input.GetKeyUp(KeyCode.Return)) InteractEnded();
             if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Backspace)) Cancel();
-            if (Input.GetKeyDown(KeyCode.LeftArrow)) EmulateDirection(Direction.Left);
-            if (Input.GetKeyDown(KeyCode.RightArrow)) EmulateDirection(Direction.Right);
-            if (Input.GetKeyDown(KeyCode.UpArrow)) EmulateDirection(Direction.Up);
-            if (Input.GetKeyDown(KeyCode.DownArrow)) EmulateDirection(Direction.Down);
+            if (Input.GetKeyDown(KeyCode.LeftArrow)) EmulateDirection(TestSelectableDirection.Left);
+            if (Input.GetKeyDown(KeyCode.RightArrow)) EmulateDirection(TestSelectableDirection.Right);
+            if (Input.GetKeyDown(KeyCode.UpArrow)) EmulateDirection(TestSelectableDirection.Up);
+            if (Input.GetKeyDown(KeyCode.DownArrow)) EmulateDirection(TestSelectableDirection.Down);
 
             if (previousSelectable != lastSelected)
             {
@@ -1336,7 +1336,7 @@ public class TestHarness : MonoBehaviour
         }
     }
 
-    void EmulateDirection(Direction direction)
+    void EmulateDirection(TestSelectableDirection direction)
     {
 	    TestSelectable root = GetComponent<TestSelectable>();
 		TestSelectable selectable = lastSelected.GetNearestSelectable(direction);

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public enum Direction
+public enum TestSelectableDirection
 {
     Up,
     Down,
@@ -172,7 +172,7 @@ public class TestSelectable : MonoBehaviour
         return null;
     }
 
-    public TestSelectable GetNearestSelectable(Direction direction)
+    public TestSelectable GetNearestSelectable(TestSelectableDirection direction)
     {
         if (Parent == null || ModSelectable.IsPassThrough)
         {
@@ -191,7 +191,7 @@ public class TestSelectable : MonoBehaviour
                 }
             }
         }
-        if ((Parent != null && (direction == Direction.Down || direction == Direction.Up) && Parent.AllowSelectionWrapY) || ((direction == Direction.Left || direction == Direction.Right) && Parent.AllowSelectionWrapX))
+        if ((Parent != null && (direction == TestSelectableDirection.Down || direction == TestSelectableDirection.Up) && Parent.AllowSelectionWrapY) || ((direction == TestSelectableDirection.Left || direction == TestSelectableDirection.Right) && Parent.AllowSelectionWrapX))
         {
             for (int k = 0; k < num; k++)
             {
@@ -208,25 +208,25 @@ public class TestSelectable : MonoBehaviour
         return null;
     }
 
-    public TestSelectable GetChildInDirection(Direction direction, int i, int j)
+    public TestSelectable GetChildInDirection(TestSelectableDirection direction, int i, int j)
     {
         TestSelectable result = null;
         TestSelectable result2 = null;
         switch (direction)
         {
-            case Direction.Up:
+            case TestSelectableDirection.Up:
                 result = Parent.GetChild(x - i, y - j);
                 result2 = Parent.GetChild(x + i, y - j);
                 break;
-            case Direction.Down:
+            case TestSelectableDirection.Down:
                 result = Parent.GetChild(x - i, y + j);
                 result2 = Parent.GetChild(x + i, y + j);
                 break;
-            case Direction.Left:
+            case TestSelectableDirection.Left:
                 result = Parent.GetChild(x - j, y - i);
                 result2 = Parent.GetChild(x - j, y + i);
                 break;
-            case Direction.Right:
+            case TestSelectableDirection.Right:
                 result = Parent.GetChild(x + j, y - i);
                 result2 = Parent.GetChild(x + j, y + i);
                 break;
