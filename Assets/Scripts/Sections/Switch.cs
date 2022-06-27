@@ -13,11 +13,14 @@ public class Switch : Section
     public override SectionType type
     { get { return SectionType.Switch; } }
 
+    private string DirectionText { get { return _direction.ToString().ToLowerInvariant(); } }
+
     public override IEnumerator ResetAnim(int cycles)
     {
         if (Ut.RandBool())
-            _direction = 1 - _direction;
-        yield return FlipAnim();
+            yield return Flip();
+        maze.switchPosition = _direction;
+        Log("Reset starting switch position to {0}.", DirectionText);
     }
     public override bool isValid()
     {
@@ -26,10 +29,12 @@ public class Switch : Section
 
     private void SwitchPress()
     {
-        if (isAnimating)
+        if (isAnimating || !parentScript.isInteractable)
             return;
         StartCoroutine(Flip(true));
-        if (interactionHook != null)
+        Log("Manually flipped the switch to the {0} position.", DirectionText);
+        maze.switchPosition = _direction;
+        if (interactionHook != null && acceptCommands)
             interactionHook.Invoke(_direction);
     }
 
@@ -73,26 +78,39 @@ public class Switch : Section
             _direction = RotDirection.Counterclockwise;
             switchObj.transform.localEulerAngles = new Vector3(-75, 90, 0);
         }
+        Log("Starting switch position: {0}.", _direction);
         switchObj.OnInteract += () => { SwitchPress(); return false; };
     }
 
     protected override void DialInteraction(RotDirection rotation, Direction newPosition)
     {
         if ((newPosition == Direction.Right && _direction == RotDirection.Counterclockwise) || (newPosition == Direction.Left && _direction == RotDirection.Clockwise))
-            Flip();
+        {
+            StartCoroutine(Flip());
+            Log("Dial interaction of pointing the dial in the {0} direction flipped the switch to the {0} position.", DirectionText);
+        }
         else if ((int)(Bomb.GetTime()) % 2 == 0)
-            Flip();
+        {
+            StartCoroutine(Flip());
+            Log("Dial interaction flipped the switch to the {0} position because the last digit of the bomb timer was even.", DirectionText);
+        }
     }
     protected override void NumberInteraction(int newNumber)
     {
         int[] primes = { 2, 3, 5, 7 };
         if (primes.Contains(newNumber))
-            Flip();
+        {
+            StartCoroutine(Flip());
+            Log("Number interaction of setting the value to a prime ({0}) flipped the switch to the {1} position.", newNumber, DirectionText);
+        }
     }
     protected override void GridInteraction(int pressedPosition)
     {
         if (_direction == wheelDirection)
-            Flip();
+        {
+            StartCoroutine(Flip());
+            Log("Grid interaction flipped the switch away from the direction the wheel is spinning ({0}).", DirectionText);
+        }
     }
 
 }

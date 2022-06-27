@@ -7,11 +7,15 @@ public abstract class Section : MonoBehaviour {
 
     public KMAudio Audio;
     public KMBombInfo Bomb;
-    public Maze maze = new Maze();
+    public UndertunnelingScript parentScript;
+
+    public Maze maze;
     [HideInInspector]
     public RotDirection wheelDirection;
     [HideInInspector]
     public bool isAnimating;
+    [HideInInspector]
+    public bool acceptCommands = true;
     public int moduleId { private get; set; }
 
 	public abstract SectionType type { get; }
@@ -40,6 +44,7 @@ public abstract class Section : MonoBehaviour {
             case SectionType.Grid:
                 (other as Grid).interactionHook += GridInteraction;  break;
         }
+        Log("Connected {0} to {1}.", this.type, other.type);
     }
 
     void Start()
