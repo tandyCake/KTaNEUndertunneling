@@ -112,5 +112,11 @@ public class Switch : Section
             Log("Grid interaction flipped the switch away from the direction the wheel is spinning ({0}).", DirectionText);
         }
     }
-
+    public override string tpRegex { get { return @"^FLIP(?:\s+SWITCH)?$"; } }
+    public override IEnumerator ProcessTwitchCommand(string command)
+    {
+        yield return null;
+        switchObj.OnInteract();
+        yield return new WaitForSeconds(0.2f);
+    }
 }

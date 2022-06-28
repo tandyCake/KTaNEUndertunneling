@@ -21,7 +21,6 @@ public abstract class Section : MonoBehaviour {
 	public abstract SectionType type { get; }
     public abstract IEnumerator ResetAnim(int cycles);
     public abstract bool isValid();
-     
     protected virtual void SwitchInteract(RotDirection newDirection)
     { throw new NotImplementedException(); }
     protected virtual void DialInteraction(RotDirection rotation, Direction newPosition)
@@ -58,4 +57,6 @@ public abstract class Section : MonoBehaviour {
     {
         Debug.LogFormat("[Undertunneling #{0}] {1}", moduleId, string.Format(msg, args));
     }
+    public abstract string tpRegex { get; }
+    public abstract IEnumerator ProcessTwitchCommand(string command);
 }

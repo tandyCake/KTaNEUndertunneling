@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.Text.RegularExpressions;
 using KModkit;
 using Rnd = UnityEngine.Random;
 
@@ -147,5 +148,17 @@ public class Number : Section
     {
         IncrementValue(pressedPosition + 1);
         Log("Grid interaction incremented the displayed number by {0} to value {1}.", pressedPosition + 1, _value);
+    }
+    public override string tpRegex { get { return @"^(?:SET\s+)?(UP?|D(?:OWN))\s+([0-9])$"; } }
+    public override IEnumerator ProcessTwitchCommand(string command)
+    {
+        Match m = Regex.Match(command, tpRegex);
+        KMSelectable btn = m.Groups[1].Value[0] == 'U' ? up : down;
+        int target = int.Parse(m.Groups[2].Value);
+        while (_value != target)
+        {
+            btn.OnInteract();
+            yield return new WaitForSeconds(0.2f);
+        }
     }
 }

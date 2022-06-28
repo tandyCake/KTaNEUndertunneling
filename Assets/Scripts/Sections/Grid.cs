@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.Text.RegularExpressions;
 using Rnd = UnityEngine.Random;
 
 public class Grid : Section {
@@ -57,7 +59,10 @@ public class Grid : Section {
             for (int tile = 0; tile < 9; tile++)
                 if (Ut.RandBool())
                     ToggleLight(tile);
-            yield return new WaitForSeconds(0.4f);
+            Audio.PlaySoundAtTransform("beep" + Rnd.Range(0, 3), parentScript.transform);
+            yield return new WaitForSeconds(0.2f);
+            Audio.PlaySoundAtTransform("beep" + Rnd.Range(0, 3), parentScript.transform);
+            yield return new WaitForSeconds(0.2f);
         }
         isAnimating = false;
     }
@@ -104,7 +109,7 @@ public class Grid : Section {
         int[] presentDigits = Enumerable.Range(1, 9).Where(x => timerDigits.Contains(x)).ToArray();
         foreach (int digit in presentDigits)
             ToggleLight(digit - 1);
-        Log("Switch interaction at {0} toggled the following grid positions: {1}.", bombTimer, presentDigits.Select(x => positionNames[x - 1]));
+        Log("Switch interaction at {0} toggled the following grid positions: {1}.", bombTimer, presentDigits.Select(x => positionNames[x - 1]).Join(", "));
         LogNewState();
     }
     protected override void DialInteraction(RotDirection rotation, Direction newPosition)
@@ -165,6 +170,33 @@ public class Grid : Section {
             yield return new WaitForSeconds(Rnd.Range(1.5f, 3f));
             mesh.material = unlit;
             yield return new WaitForSeconds(Rnd.Range(0.25f, 0.67f));
+        }
+    }
+    public override string tpRegex { get { return @"^(?:PRESS\s+)?((?:(?:[1-9]|[TMB][LMR]|[A-C][1-3])(?:\s+|$))+)$"; } }
+    public override IEnumerator ProcessTwitchCommand(string command)
+    {
+        yield return null;
+        Match m = Regex.Match(command, tpRegex);
+        string[] posNames = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "TL", "TM", "TR", "ML", "MM", "MR", "BL", "BM", "BR", "A1", "B1", "C1", "A2", "B2", "C2", "A3", "B3", "C3" };
+        foreach (string arg in m.Groups[1].Value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            tiles[Array.IndexOf(posNames, arg) % 9].GetComponent<KMSelectable>().OnInteract();
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+    public string stage2TpRegex { get { return @"^(?:MOVE\s+)?([URDL]+)$"; } }
+    public IEnumerator ProcessStage2TwitchCommand(string command)
+    {
+        Match m = Regex.Match(command, stage2TpRegex);
+        foreach (char movement in m.Groups[1].Value)
+        {
+            Direction dir = (Direction)"URDL".IndexOf(movement);
+            int pressIx = -1;
+            foreach (var pair in lightLookup)
+                if (pair.Value == dir)
+                    pressIx = pair.Key;
+            tiles[pressIx].GetComponent<KMSelectable>().OnInteract();
+            yield return new WaitForSeconds(0.2f);
         }
     }
 }

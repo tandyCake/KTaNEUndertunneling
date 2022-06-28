@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text.RegularExpressions;
 using Rnd = UnityEngine.Random;
 
 public class Dial : Section
@@ -26,11 +27,15 @@ public class Dial : Section
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, dial);
         if (!parentScript.isInteractable)
             return;
+        Audio.PlaySoundAtTransform("Dial", dial);
         Rotate(dir);
         Log("Manually rotated the dial {0} to the {1} position.", dir.ToString().ToLower(), _pointing.ToString().ToLower());
-        maze.AddDirections(new[] { _pointing });
-        if (interactionHook != null && acceptCommands)
-            interactionHook.Invoke(dir, _pointing);
+        if (acceptCommands)
+        {
+            maze.AddDirections(new[] { _pointing });
+            if (interactionHook != null)
+                interactionHook.Invoke(dir, _pointing);
+        }
     }
 
     void Rotate(RotDirection d)
@@ -44,7 +49,6 @@ public class Dial : Section
     {
         yield return new WaitUntil(() => !isAnimating);
         isAnimating = true;
-        Audio.PlaySoundAtTransform("Dial", dial);
         float initAngle = dial.localEulerAngles.y;
         float endAngle;
         if (direction == RotDirection.Counterclockwise)
@@ -93,5 +97,18 @@ public class Dial : Section
             Rotate(RotDirection.Clockwise);
         else if (pressedPosition != 4)
             Rotate(RotDirection.Counterclockwise);
+    }
+    public override string tpRegex { get { return @"^(?:(?:TURN|ROTATE)\s+)?(C?CW)(?:\s+([0-9]{1,2}))?$"; } }
+    public override IEnumerator ProcessTwitchCommand(string command)
+    {
+        Match m = Regex.Match(command, tpRegex);
+        yield return null;
+        KMSelectable btn = m.Groups[1].Value.Length == 2 ? cw : ccw;
+        int presses = m.Groups[2].Length == 0 ? 1 : int.Parse(m.Groups[2].Value);
+        for (int i = 0; i < presses; i++)
+        {
+            btn.OnInteract();
+            yield return new WaitForSeconds(0.2f);
+        }
     }
 }

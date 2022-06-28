@@ -151,21 +151,48 @@ public class UndertunnelingScript : MonoBehaviour {
         Debug.LogFormat("[Undertunneling #{0}] {1}", moduleId, string.Format(msg, args));
     }
 
-    /*
 #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"Use <!{0} foobar> to do something.";
-    #pragma warning restore 414
+    private readonly string TwitchHelpMessage = "Use <!{0} flip> to flip the switch. Use <!{0} turn cw/ccw #> to turn the dial clockwise/counterclockwise # times (the # is optional). Use <!{0} set up/down #> to set the number display to # by pressing the up/down button. Use <!{0} press 1 5 9> to press those lights on the light grid.\nAppend 'at #' to do that action when the last timer digit is a certain value. Two digits may also be supplied for the last 2 timer digits.\nUse <!{0} move URDL> to move in those directions in the maze in phase 2. Use <!{0} reset> to reset the module.";
+#pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand (string command)
     {
         command = command.Trim().ToUpperInvariant();
-        List<string> parameters = command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (command == "RESET")
+        {
+            yield return null;
+            centerBtn.OnInteract();
+            yield return new WaitForSeconds(1.25f);
+            centerBtn.OnInteractEnded();
+            yield break;
+        }
+        if (stage2) 
+        {
+            if (Regex.IsMatch(command, gridComponent.stage2TpRegex))
+            {
+                yield return null;
+                yield return gridComponent.ProcessStage2TwitchCommand(command);
+            }
+            yield break;
+        }
+
+        Match cutOffTimerPart = Regex.Match(command, @"^(.+)(?:ON|AT)\s+([0-5]?[0-9])$");
+        command = cutOffTimerPart.Success ? cutOffTimerPart.Groups[1].Value.Trim() : command.Trim();
+        if (!sections.Any(sec => Regex.IsMatch(command, sec.tpRegex)))
+            yield break;
         yield return null;
+        if (cutOffTimerPart.Success)
+        {
+            yield return null;
+            string timerPart = cutOffTimerPart.Groups[2].Value;
+            int target = int.Parse(timerPart);
+            int modulus = timerPart.Length == 1 ? 10 : 60;
+            while (((int)Bomb.GetTime()) % modulus != target)
+                yield return "trycancel";
+        }
+        foreach (Section section in sections)
+            if (Regex.IsMatch(command, section.tpRegex))
+                yield return section.ProcessTwitchCommand(command);
     }
 
-    IEnumerator TwitchHandleForcedSolve ()
-    {
-        yield return null;
-    }
-    */
 }
