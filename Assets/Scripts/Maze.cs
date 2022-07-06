@@ -24,7 +24,7 @@ public class Maze {
             if (switchPosition == RotDirection.Counterclockwise)
             {
                 Direction newDir = (Direction)(((int)dir + 2) % 4);
-                Log("The switch's counterclockwise inverts your movement so that you move {0}.", newDir);
+                Log("Moved {0} in the maze. (inverted because switch = ccw)", newDir);
                 _curPos = Move(newDir);
             }
             else
@@ -58,6 +58,10 @@ public class Maze {
         Log("Successfully moved {0} from {1} to {2}.", dir, ToCoordinate(_curPos), ToCoordinate(next));
         _curPos = next;
         return true;
+    }
+    public bool GetTryMove(Direction dir)
+    {
+        return maze[_curPos].Contains(dir.ToString()[0]);
     }
     private int Flatten(int x, int y)
     {

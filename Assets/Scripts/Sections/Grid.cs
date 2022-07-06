@@ -38,7 +38,7 @@ public class Grid : Section {
     private int _northLightOffset;
     private Dictionary<int, Direction> lightLookup = new Dictionary<int, Direction>();
     private Coroutine _flickerCoroutine;
-    public bool isSolved;
+    public bool flicker = false;
     
 
     public override bool isValid()
@@ -159,12 +159,13 @@ public class Grid : Section {
         {
             lightLookup.Add(dirLights[(i + _northLightOffset) % 4], (Direction)i);
             tiles[dirLights[(i + _northLightOffset) % 4]].material = lit;
+            flicker = true;
             _flickerCoroutine = StartCoroutine(Flicker(tiles[dirLights[_northLightOffset]]));
         }
     }
     IEnumerator Flicker(MeshRenderer mesh)
     {
-        while (!isSolved)
+        while (flicker)
         {
             mesh.material = lit;
             yield return new WaitForSeconds(Rnd.Range(1.5f, 3f));
@@ -195,7 +196,10 @@ public class Grid : Section {
             foreach (var pair in lightLookup)
                 if (pair.Value == dir)
                     pressIx = pair.Key;
+            bool willStrike = maze.GetTryMove(dir);
             tiles[pressIx].GetComponent<KMSelectable>().OnInteract();
+            if (willStrike)
+                yield break;
             yield return new WaitForSeconds(0.2f);
         }
     }

@@ -68,7 +68,10 @@ public class UndertunnelingScript : MonoBehaviour {
         if (moduleSolved)
             yield break;
         isInteractable = false;
+        stage2 = false;
+        gridComponent.flicker = false;
         maze.Reset();
+        StartCoroutine(SpeedUpAgain());
         yield return new WaitUntil(() => sections.All(x => !x.isAnimating));
         for (int i = 0; i < 4; i++)
         {
@@ -77,6 +80,15 @@ public class UndertunnelingScript : MonoBehaviour {
         }
         yield return new WaitUntil(() => sections.All(x => !x.isAnimating));
         isInteractable = true;
+    }
+    IEnumerator SpeedUpAgain()
+    {
+        while (wheelSpeed < 1)
+        {
+            yield return null;
+            wheelSpeed += 0.33f * Time.deltaTime;
+        }
+        wheelSpeed = 1;
     }
     void SetUpSections()
     {
@@ -141,7 +153,7 @@ public class UndertunnelingScript : MonoBehaviour {
             Log("The starting cell has been returned to. Module solved!");
             Module.HandlePass();
             Audio.PlaySoundAtTransform("COMPLETE!", transform);
-            gridComponent.isSolved = true;
+            gridComponent.flicker = false;
             gridComponent.SetBlank();
         }
     }
