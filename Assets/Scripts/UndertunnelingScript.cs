@@ -138,7 +138,8 @@ public class UndertunnelingScript : MonoBehaviour {
         wheelSpeed = 0;
         yield return new WaitForSeconds(1.5f);
         gridComponent.ActivateStage2Mode();
-        gridComponent.movementHook += (d) => TryMove(d);
+        if (gridComponent.movementHook == null)
+            gridComponent.movementHook += (d) => TryMove(d);
     }
 
     private void TryMove(Direction d)

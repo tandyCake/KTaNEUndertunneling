@@ -196,10 +196,7 @@ public class Grid : Section {
             foreach (var pair in lightLookup)
                 if (pair.Value == dir)
                     pressIx = pair.Key;
-            bool willStrike = maze.GetTryMove(dir);
             tiles[pressIx].GetComponent<KMSelectable>().OnInteract();
-            if (willStrike)
-                yield break;
             yield return new WaitForSeconds(0.2f);
         }
     }

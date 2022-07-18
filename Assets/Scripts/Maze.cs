@@ -59,10 +59,6 @@ public class Maze {
         _curPos = next;
         return true;
     }
-    public bool GetTryMove(Direction dir)
-    {
-        return maze[_curPos].Contains(dir.ToString()[0]);
-    }
     private int Flatten(int x, int y)
     {
         return 7 * y + x;
