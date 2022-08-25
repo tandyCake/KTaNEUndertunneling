@@ -104,7 +104,6 @@ public class Grid : Section {
                 ToggleLight(ix);
         }
         _dialInteractionIx = Rnd.Range(0, 8);
-        Log("weed");
         int path = GridSolvePathCount();
     }
     protected override void SwitchInteract(RotDirection newDirection)
