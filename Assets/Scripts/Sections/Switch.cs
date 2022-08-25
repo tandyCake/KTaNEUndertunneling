@@ -79,6 +79,7 @@ public class Switch : Section
             switchObj.transform.localEulerAngles = new Vector3(-75, 90, 0);
         }
         Log("Starting switch position: {0}.", _direction);
+        maze.switchPosition = _direction;
         switchObj.OnInteract += () => { SwitchPress(); return false; };
     }
 

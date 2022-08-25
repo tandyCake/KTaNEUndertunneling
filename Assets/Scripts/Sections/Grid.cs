@@ -54,6 +54,9 @@ public class Grid : Section {
         lightLookup.Clear();
 
         isAnimating = true;
+        if (_flickerCoroutine != null)
+            StopCoroutine(_flickerCoroutine);
+        flicker = false;
         for (int i = 0; i < cycles; i++)
         {
             for (int tile = 0; tile < 9; tile++)
@@ -101,6 +104,8 @@ public class Grid : Section {
                 ToggleLight(ix);
         }
         _dialInteractionIx = Rnd.Range(0, 8);
+        Log("weed");
+        int path = GridSolvePathCount();
     }
     protected override void SwitchInteract(RotDirection newDirection)
     {
@@ -141,11 +146,9 @@ public class Grid : Section {
 
     public void SetBlank()
     {
+        flicker = false;
         if (_flickerCoroutine != null)
-        {
-            Log("poob");
             StopCoroutine(_flickerCoroutine);
-        }
         for (int i = 0; i < 9; i++)
             tiles[i].material = unlit;
     }
@@ -163,10 +166,26 @@ public class Grid : Section {
             _flickerCoroutine = StartCoroutine(Flicker(tiles[dirLights[_northLightOffset]]));
         }
     }
+    private int GridSolvePathCount()
+    {
+        int[][] paths = new int[9][] { new int[] { 0, 2, 5, 6, 7 }, new int[] { 4, 6, 7, 8 }, new int[] { 0, 2, 3, 7, 8 }, new int[] { 2, 4, 5, 8 }, new int[] { 1, 3, 4, 5, 7 }, new int[] { 0, 3, 4, 6 }, new int[] { 0, 1, 5, 6, 8 }, new int[] { 0, 1, 2, 4 }, new int[] { 1, 2, 3, 6, 8 } };
+        var goalState = wheelDirection == RotDirection.Clockwise;
+        bool[] toggles = new bool[9];
+        for (int i = 0; i < 9; i++)
+            if (_states[i] != goalState)
+                for (int j = 0; j < paths[i].Length; j++)
+                    toggles[paths[i][j]] = !toggles[paths[i][j]];
+        bool even = false;
+        for (int i = 0; i < toggles.Length; i++)
+            if (toggles[i])
+                even = !even;
+        return even ? 0 : 1;
+    }
     IEnumerator Flicker(MeshRenderer mesh)
     {
         while (flicker)
         {
+            Debug.Log("a");
             mesh.material = lit;
             yield return new WaitForSeconds(Rnd.Range(1.5f, 3f));
             mesh.material = unlit;

@@ -24,6 +24,7 @@ public class UndertunnelingScript : MonoBehaviour {
     int moduleId;
     private bool moduleSolved;
     private bool stage2;
+    private bool canEnterStage2 = true;
     public Switch switchComponent;
     public Dial dialComponent;
     public Number numberComponent;
@@ -68,6 +69,7 @@ public class UndertunnelingScript : MonoBehaviour {
         if (moduleSolved)
             yield break;
         isInteractable = false;
+        canEnterStage2 = false;
         stage2 = false;
         gridComponent.flicker = false;
         maze.Reset();
@@ -79,6 +81,7 @@ public class UndertunnelingScript : MonoBehaviour {
             sections[i].acceptCommands = true;
         }
         yield return new WaitUntil(() => sections.All(x => !x.isAnimating));
+        canEnterStage2 = true;
         isInteractable = true;
     }
     IEnumerator SpeedUpAgain()
@@ -118,7 +121,7 @@ public class UndertunnelingScript : MonoBehaviour {
             offset *= -1;
         wheel.transform.localEulerAngles += offset * Vector3.up;
 
-        if (!stage2 && sections.All(x => x.isValid()))
+        if (!stage2 && sections.All(x => x.isValid()) && canEnterStage2)
             StartCoroutine(EnterMovementStage());
     }
 
