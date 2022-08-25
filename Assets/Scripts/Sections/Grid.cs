@@ -105,7 +105,6 @@ public class Grid : Section
                 ToggleLight(ix);
         }
         _dialInteractionIx = Rnd.Range(0, 8);
-        int path = GridSolvePathCount();
     }
     protected override void SwitchInteract(RotDirection newDirection)
     {
@@ -160,13 +159,13 @@ public class Grid : Section
         _northLightOffset = Rnd.Range(0, 4);
         for (int i = 0; i < 4; i++)
         {
-            lightLookup.Add(dirLights[(i + _northLightOffset) % 4], (Direction)i);
+            lightLookup.Add(dirLights[(i + _northLightOffset) % 4], (Direction) i);
             tiles[dirLights[(i + _northLightOffset) % 4]].material = lit;
         }
         flicker = true;
         _flickerCoroutine = StartCoroutine(Flicker(tiles[dirLights[_northLightOffset]]));
     }
-    private int GridSolvePathCount()
+    public void FixIfGridSolvePathInvalid(bool reqEven)
     {
         int[][] paths = new int[9][] { new int[] { 0, 2, 5, 6, 7 }, new int[] { 4, 6, 7, 8 }, new int[] { 0, 2, 3, 7, 8 }, new int[] { 2, 4, 5, 8 }, new int[] { 1, 3, 4, 5, 7 }, new int[] { 0, 3, 4, 6 }, new int[] { 0, 1, 5, 6, 8 }, new int[] { 0, 1, 2, 4 }, new int[] { 1, 2, 3, 6, 8 } };
         var goalState = wheelDirection == RotDirection.Clockwise;
@@ -175,11 +174,16 @@ public class Grid : Section
             if (_states[i] != goalState)
                 for (int j = 0; j < paths[i].Length; j++)
                     toggles[paths[i][j]] = !toggles[paths[i][j]];
-        bool even = false;
+        bool even = true;
         for (int i = 0; i < toggles.Length; i++)
-            if (toggles[i])
+            if (i != 4 && toggles[i])
                 even = !even;
-        return even ? 0 : 1;
+        if (even != reqEven)
+        {
+            // Find a random tile to toggle to make it solvable.
+            var candidates = new[] { 0, 1, 2, 3, 5, 6, 7, 8 };
+            ToggleLight(candidates[Rnd.Range(0, candidates.Length)]);
+        }
     }
     IEnumerator Flicker(MeshRenderer mesh)
     {
@@ -209,7 +213,7 @@ public class Grid : Section
         Match m = Regex.Match(command, stage2TpRegex);
         foreach (char movement in m.Groups[1].Value)
         {
-            Direction dir = (Direction)"URDL".IndexOf(movement);
+            Direction dir = (Direction) "URDL".IndexOf(movement);
             int pressIx = -1;
             foreach (var pair in lightLookup)
                 if (pair.Value == dir)

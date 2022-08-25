@@ -1,7 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System.Text.RegularExpressions;
+using UnityEngine;
 using Rnd = UnityEngine.Random;
 
 public class Dial : Section
@@ -11,13 +10,14 @@ public class Dial : Section
     public override SectionType type { get { return SectionType.Dial; } }
 
     private Direction _pointing;
+    public Direction pointing { get { return _pointing; } }
 
     protected override void OnStart()
     {
         cw.OnInteract += () => { BtnPress(RotDirection.Clockwise); return false; };
         ccw.OnInteract += () => { BtnPress(RotDirection.Counterclockwise); return false; };
-        _pointing = (Direction)Rnd.Range(0, 4);
-        dial.transform.localEulerAngles = new Vector3(-90, 90 * (int)_pointing, 0);
+        _pointing = (Direction) Rnd.Range(0, 4);
+        dial.transform.localEulerAngles = new Vector3(-90, 90 * (int) _pointing, 0);
     }
 
     public delegate void DialDelegate(RotDirection rotation, Direction newDir);
@@ -41,8 +41,8 @@ public class Dial : Section
     void Rotate(RotDirection d)
     {
         if (d == RotDirection.Clockwise)
-            _pointing = (Direction)(((int)_pointing + 1) % 4);
-        else _pointing = (Direction)(((int)_pointing + 3) % 4);
+            _pointing = (Direction) (((int) _pointing + 1) % 4);
+        else _pointing = (Direction) (((int) _pointing + 3) % 4);
         StartCoroutine(RotateAnim(d));
     }
     public IEnumerator RotateAnim(RotDirection direction)
@@ -74,7 +74,7 @@ public class Dial : Section
     }
     public override IEnumerator ResetAnim(int cycles)
     {
-        RotDirection rot = (RotDirection)Rnd.Range(0, 2);
+        RotDirection rot = (RotDirection) Rnd.Range(0, 2);
         yield return RotateMultiple(cycles, rot);
     }
     public override bool isValid()

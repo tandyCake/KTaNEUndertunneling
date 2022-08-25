@@ -1,14 +1,12 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using KModkit;
 using Rnd = UnityEngine.Random;
 
-public class UndertunnelingScript : MonoBehaviour {
-
+public class UndertunnelingScript : MonoBehaviour
+{
     public KMBombInfo Bomb;
     public KMAudio Audio;
     public KMBombModule Module;
@@ -37,12 +35,13 @@ public class UndertunnelingScript : MonoBehaviour {
     public bool isInteractable = true;
     float wheelSpeed = 1;
 
-    void Awake () {
+    void Awake()
+    {
         moduleId = moduleIdCounter++;
         maze = new Maze(moduleId);
-        SetUpSections();
-        centerBtn.OnInteract += () => { Hold();  return false; };
+        centerBtn.OnInteract += () => { Hold(); return false; };
         centerBtn.OnInteractEnded += () => Release();
+        StartCoroutine(SetUpSections());
     }
 
     void Hold()
@@ -83,6 +82,7 @@ public class UndertunnelingScript : MonoBehaviour {
         yield return new WaitUntil(() => sections.All(x => !x.isAnimating));
         canEnterStage2 = true;
         isInteractable = true;
+        FixGridIfUnsolvable();
     }
     IEnumerator SpeedUpAgain()
     {
@@ -93,11 +93,11 @@ public class UndertunnelingScript : MonoBehaviour {
         }
         wheelSpeed = 1;
     }
-    void SetUpSections()
+    IEnumerator SetUpSections()
     {
         sections.Shuffle();
         Log("Section layout in clockwise order: " + sections.Select(x => x.type.ToString()).Join(" | "));
-        wheelDirection = (RotDirection)Rnd.Range(0, 2);
+        wheelDirection = (RotDirection) Rnd.Range(0, 2);
         Log("Chosen wheel direction: {0}.", wheelDirection);
         for (int i = 0; i < 4; i++)
         {
@@ -109,10 +109,21 @@ public class UndertunnelingScript : MonoBehaviour {
             sections[i].maze = maze;
             sections[i].Connect(sections[(i + 2) % 4]);
         }
-        
+
+        // Wait for one frame to give all sections a chance to randomize themselves
+        yield return null;
+        FixGridIfUnsolvable();
     }
 
-    void Update ()
+    void FixGridIfUnsolvable()
+    {
+        // If the grid and dial are paired, make sure that the module is still solvable
+        var gridIx = Array.IndexOf(sections, gridComponent);
+        if (sections[(gridIx + 2) % 4].type == SectionType.Dial)
+            gridComponent.FixIfGridSolvePathInvalid((int) dialComponent.pointing % 2 == 0);
+    }
+
+    void Update()
     {
         if (moduleSolved)
             return;
@@ -121,7 +132,7 @@ public class UndertunnelingScript : MonoBehaviour {
             offset *= -1;
         wheel.transform.localEulerAngles += offset * Vector3.up;
 
-        if (!stage2 && sections.All(x => x.isValid()) && canEnterStage2)
+        if (!stage2 && canEnterStage2 && sections.All(x => x.isValid()))
             StartCoroutine(EnterMovementStage());
     }
 
@@ -171,7 +182,7 @@ public class UndertunnelingScript : MonoBehaviour {
     private readonly string TwitchHelpMessage = "Use <!{0} flip> to flip the switch. Use <!{0} turn cw/ccw #> to turn the dial clockwise/counterclockwise # times (the # is optional). Use <!{0} set up/down #> to set the number display to # by pressing the up/down button. Use <!{0} press 1 5 9> to press those lights on the light grid.\nAppend 'at #' to do that action when the last timer digit is a certain value. Two digits may also be supplied for the last 2 timer digits.\nUse <!{0} move URDL> to move in those directions in the maze in phase 2. Use <!{0} reset> to reset the module.";
 #pragma warning restore 414
 
-    IEnumerator ProcessTwitchCommand (string command)
+    IEnumerator ProcessTwitchCommand(string command)
     {
         command = command.Trim().ToUpperInvariant();
         if (command == "RESET")
@@ -182,7 +193,7 @@ public class UndertunnelingScript : MonoBehaviour {
             centerBtn.OnInteractEnded();
             yield break;
         }
-        if (stage2) 
+        if (stage2)
         {
             if (Regex.IsMatch(command, gridComponent.stage2TpRegex))
             {
@@ -203,7 +214,7 @@ public class UndertunnelingScript : MonoBehaviour {
             string timerPart = cutOffTimerPart.Groups[2].Value;
             int target = int.Parse(timerPart);
             int modulus = timerPart.Length == 1 ? 10 : 60;
-            while (((int)Bomb.GetTime()) % modulus != target)
+            while (((int) Bomb.GetTime()) % modulus != target)
                 yield return "trycancel";
         }
         foreach (Section section in sections)
