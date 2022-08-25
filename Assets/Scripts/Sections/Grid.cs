@@ -184,7 +184,6 @@ public class Grid : Section {
     {
         while (flicker)
         {
-            Debug.Log("a");
             mesh.material = lit;
             yield return new WaitForSeconds(Rnd.Range(1.5f, 3f));
             mesh.material = unlit;
