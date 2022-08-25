@@ -6678,7 +6678,7 @@ MonoBehaviour:
   - {fileID: 23615240980694232}
   lit: {fileID: 2100000, guid: 9cfedf14180e0d5459469ab43253949e, type: 2}
   unlit: {fileID: 2100000, guid: 8a2d68b6e05afb240841e434bd64bcb0, type: 2}
-  isSolved: 0
+  flicker: 0
 --- !u!114 &114577850891580918
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -6875,7 +6875,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ModuleType: undertunneling
   ModuleDisplayName: Undertunneling
-  RequiresTimerVisibility: 0
+  RequiresTimerVisibility: 1
 --- !u!114 &114684093920156422
 MonoBehaviour:
   m_ObjectHideFlags: 1
