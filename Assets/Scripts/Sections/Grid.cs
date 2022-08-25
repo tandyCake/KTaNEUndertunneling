@@ -6,7 +6,8 @@ using UnityEngine;
 using System.Text.RegularExpressions;
 using Rnd = UnityEngine.Random;
 
-public class Grid : Section {
+public class Grid : Section
+{
 
     public static int[][] adjacents = new int[9][]
     {
@@ -39,7 +40,7 @@ public class Grid : Section {
     private Dictionary<int, Direction> lightLookup = new Dictionary<int, Direction>();
     private Coroutine _flickerCoroutine;
     public bool flicker = false;
-    
+
 
     public override bool isValid()
     {
@@ -87,7 +88,7 @@ public class Grid : Section {
         LogNewState();
         maze.AddDirections(directionsFromCenter[ix]);
         interactionHook.Invoke(ix);
-        
+
     }
     private void ToggleLight(int ix)
     {
@@ -161,9 +162,9 @@ public class Grid : Section {
         {
             lightLookup.Add(dirLights[(i + _northLightOffset) % 4], (Direction)i);
             tiles[dirLights[(i + _northLightOffset) % 4]].material = lit;
-            flicker = true;
-            _flickerCoroutine = StartCoroutine(Flicker(tiles[dirLights[_northLightOffset]]));
         }
+        flicker = true;
+        _flickerCoroutine = StartCoroutine(Flicker(tiles[dirLights[_northLightOffset]]));
     }
     private int GridSolvePathCount()
     {
