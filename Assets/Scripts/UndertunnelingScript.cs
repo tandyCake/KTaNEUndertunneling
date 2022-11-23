@@ -46,19 +46,21 @@ public class UndertunnelingScript : MonoBehaviour
 
     void Hold()
     {
-        if (isHeld || !isInteractable)
+        if (isHeld)
             return;
         centerBtn.AddInteractionPunch();
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, centerBtn.transform);
+        if (!isInteractable)
+            return;
         heldTime = Time.time;
         isHeld = true;
     }
     void Release()
     {
-        if (!isInteractable)
-            return;
         centerBtn.AddInteractionPunch(0.25f);
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonRelease, centerBtn.transform);
+        if (!isInteractable)
+            return;
         if (Time.time - heldTime > 1)
             StartCoroutine(Reset());
         isHeld = false;
@@ -139,6 +141,7 @@ public class UndertunnelingScript : MonoBehaviour
     IEnumerator EnterMovementStage()
     {
         stage2 = true;
+        isInteractable = false;
         for (int i = 0; i < 4; i++)
             sections[i].acceptCommands = false;
         numberComponent.SetBlank();
@@ -154,6 +157,8 @@ public class UndertunnelingScript : MonoBehaviour
         gridComponent.ActivateStage2Mode();
         if (gridComponent.movementHook == null)
             gridComponent.movementHook += (d) => TryMove(d);
+        isInteractable = true;
+
     }
 
     private void TryMove(Direction d)
@@ -184,6 +189,11 @@ public class UndertunnelingScript : MonoBehaviour
 
     IEnumerator ProcessTwitchCommand(string command)
     {
+        if (!isInteractable)
+        {
+            yield return "sendtochaterror The module is not interactable at this time.";
+            yield break;
+        }
         command = command.Trim().ToUpperInvariant();
         if (command == "RESET")
         {
