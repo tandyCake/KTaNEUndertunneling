@@ -16,6 +16,6 @@ MonoBehaviour:
   author: tandyCake
   description: "Your actions have actions with consequences.\r\n\nModule by tandyCake\nManual
     by Vincology\nmoduleID: undertunneling\nManual can be found at ktane.timwi.de"
-  version: 1.4.1
+  version: 1.4.2
   outputFolder: build
   previewImage: {fileID: 2800000, guid: bf83f22a7845f814aae164287a53ca55, type: 3}
