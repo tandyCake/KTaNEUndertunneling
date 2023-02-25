@@ -207,7 +207,7 @@ public class Grid : Section
             yield return new WaitForSeconds(0.2f);
         }
     }
-    public string stage2TpRegex { get { return @"^(?:MOVE\s+)?([URDL]+)$"; } }
+    public string stage2TpRegex { get { return @"^(?:(?:MOVE|PRESS)\s+)?([URDL]+)$"; } }
     public IEnumerator ProcessStage2TwitchCommand(string command)
     {
         Match m = Regex.Match(command, stage2TpRegex);
