@@ -34,6 +34,7 @@ public class Number : Section
     { get { return SectionType.Number; } }
     private int _value;
     private int _target;
+    private bool _isInteractable = true;
 
     public MeshRenderer[] segments;
     public Material unlit, lit;
@@ -115,6 +116,7 @@ public class Number : Section
     {
         for (int i = 0; i < 8; i++)
             segments[i].material = unlit;
+        _isInteractable = false;
     }
 
     protected override void SwitchInteract(RotDirection newDirection)
@@ -155,7 +157,7 @@ public class Number : Section
         Match m = Regex.Match(command, tpRegex);
         KMSelectable btn = m.Groups[1].Value[0] == 'U' ? up : down;
         int target = int.Parse(m.Groups[2].Value);
-        while (_value != target)
+        while (_value != target && _isInteractable)
         {
             btn.OnInteract();
             yield return new WaitForSeconds(0.2f);
