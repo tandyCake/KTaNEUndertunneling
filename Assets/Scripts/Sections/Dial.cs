@@ -94,9 +94,9 @@ public class Dial : Section
     protected override void GridInteraction(int pressedPosition)
     {
         if (pressedPosition % 2 == 1)
-            Rotate(RotDirection.Clockwise);
-        else if (pressedPosition != 4)
             Rotate(RotDirection.Counterclockwise);
+        else if (pressedPosition != 4)
+            Rotate(RotDirection.Clockwise);
     }
     public override string tpRegex { get { return @"^(?:(?:TURN|ROTATE)\s+)?(C?CW)(?:\s+([0-9]{1,2}))?$"; } }
     public override IEnumerator ProcessTwitchCommand(string command)
